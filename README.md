@@ -34,7 +34,7 @@ DSA-210-TERM-PROJECT/
 │       └── oecd_internet_gdp.csv   # Merged & cleaned dataset
 ├── notebooks/
 │   └── eda_hypothesis.ipynb  # Main analysis notebook
-├── figures/                  # Generated plots
+├── figures/                  # Generated plots (15 figures)
 ├── fetch_data.py             # World Bank API data fetching script
 ├── generate_sample_data.py   # Offline data generation (fallback)
 └── requirements.txt
@@ -53,6 +53,10 @@ pip install -r requirements.txt
 ```bash
 python fetch_data.py
 ```
+Or generate sample data offline:
+```bash
+python generate_sample_data.py
+```
 
 ### 3. Open and run the notebook
 ```bash
@@ -69,14 +73,26 @@ Run all cells in order.
 - Average internet usage across OECD grew from ~55% (2005) to ~87% (2020)
 - Clear upward trend in both internet penetration and GDP per capita
 - Notable 2009 GDP dip visible across most countries (global financial crisis)
+- Log transformation of GDP produces a more symmetric distribution and better regression fit
+- Country rankings reveal large dispersion: Iceland/Denmark ~97% vs Mexico/Colombia ~65%
 
 ### Hypothesis Tests
 
-| # | Hypothesis | Test | Result |
-|---|-----------|------|--------|
-| H1 | Internet usage positively correlates with GDP per capita | Pearson + Spearman | **Confirmed** (r=0.53, p<0.001) |
-| H2 | Countries with ≥80% internet usage have higher GDP | Independent t-test | **Confirmed** (t=13.2, p<0.001) |
-| H3 | Internet usage increased significantly 2005→2020 | Paired t-test | **Confirmed** (t=32.2, p<0.001) |
+| # | Hypothesis | Test | Result | Effect Size |
+|---|-----------|------|--------|-------------|
+| H1 | Internet usage positively correlates with GDP per capita | Pearson + Spearman | **Confirmed** (r=0.53, p<0.001) | R²=0.285 |
+| H2 | Countries with ≥80% internet usage have higher GDP | Independent t-test | **Confirmed** (t=13.2, p<0.001) | Cohen's d=1.08 |
+| H3 | Internet usage increased significantly 2005→2020 | Paired t-test | **Confirmed** (t=32.2, p<0.001) | Cohen's d=5.29 |
+
+### Regression Analysis
+- OLS: GDP = 52 + 789.8 × internet_pct — R² = 0.285
+- Log-linear model achieves better fit (R² = 0.360) due to right-skewed GDP distribution
+- Residual plots confirm log-linear model is more homoscedastic
+
+### Normality & Assumption Checks
+- Shapiro-Wilk applied to all test groups prior to t-tests
+- H2 groups: normality formally rejected (large n), but CLT ensures t-test validity
+- H3 differences: normality not rejected — paired t-test assumptions fully satisfied
 
 ---
 
@@ -87,4 +103,4 @@ Run all cells in order.
 ---
 
 ## AI Assistance Disclosure
-AI tools (Claude) were used for code scaffolding and debugging. All hypothesis formulation, interpretation, and analytical decisions were made independently.
+AI tools were used for some part of the code. All hypothesis formulation, interpretation, and analytical decisions were made by myself.
